@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开启 · 第一章</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&display=swap');
+
+  :root {
+    --bg:        #0e0e0e;
+    --text:      #d4cfc8;
+    --text-dim:  #6b6660;
+    --text-faint:#3a3835;
+    --accent:    #c9b99a;
+    --border:    #2a2825;
+    --choice-bg: #161412;
+    --choice-hover: #1e1c1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif SC', 'Source Han Serif CN', 'SimSun', serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 80px 0;
+  }
+
+  /* ── 顶部标题栏 ── */
+  #header {
+    width: 100%;
+    max-width: 640px;
+    padding: 48px 32px 0;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.2s forwards;
+  }
+
+  #game-title {
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  #chapter-title {
+    font-size: 15px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    font-weight: 300;
+    min-height: 22px;
+  }
+
+  /* ── 分隔线 ── */
+  .divider {
+    width: 100%;
+    max-width: 640px;
+    height: 1px;
+    background: var(--border);
+    margin: 24px 32px;
+    opacity: 0;
+    animation: fadeIn 0.8s ease 0.5s forwards;
+  }
+
+  /* ── 正文区 ── */
+  #text-area {
+    width: 100%;
+    max-width: 640px;
+    padding: 0 32px;
+    line-height: 2.2;
+    font-size: 15px;
+    transition: opacity 0.4s ease;
+  }
+
+  #text-area p {
+    margin-bottom: 1.4em;
+    opacity: 0;
+  }
+
+  #text-area p.scene-label {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--text-dim);
+    margin: 2em 0 1.8em;
+  }
+
+  #text-area p.dialogue {
+    color: var(--text);
+    padding-left: 0;
+  }
+
+  #text-area p.separator {
+    text-align: center;
+    color: var(--text-faint);
+    letter-spacing: 0.3em;
+    margin: 2em 0;
+  }
+
+  /* ── 选项区 ── */
+  #choices-area {
+    width: 100%;
+    max-width: 640px;
+    padding: 8px 32px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .choice-btn {
+    background: var(--choice-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    padding: 14px 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    opacity: 0;
+  }
+
+  .choice-btn:hover {
+    background: var(--choice-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── 继续按钮 ── */
+  #continue-btn-area {
+    width: 100%;
+    max-width: 640px;
+    padding: 24px 32px 0;
+  }
+
+  #continue-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: color 0.2s ease;
+    display: block;
+  }
+
+  #continue-btn:hover { color: var(--accent); }
+  #continue-btn.hidden { display: none; }
+
+  #chapter-end {
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    padding: 8px 0;
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+  }
+
+  /* ── 结尾画面 ── */
+  #ending-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 40px 32px;
+    opacity: 0;
+  }
+
+  #ending-screen.visible {
+    display: flex;
+    animation: fadeIn 1.2s ease forwards;
+  }
+
+  #ending-title {
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  #ending-text {
+    font-size: 14px;
+    line-height: 2.4;
+    color: var(--text-dim);
+    max-width: 400px;
+  }
+
+  #restart-btn {
+    margin-top: 48px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  #restart-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── 动画 ── */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: fadeUp 0.6s ease forwards;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="game-title">开　启</div>
+  <div id="chapter-title"></div>
+</div>
+<div class="divider"></div>
+<div id="text-area"></div>
+<div id="choices-area"></div>
+<div id="continue-btn-area">
+  <button id="continue-btn" class="hidden">继　续</button>
+</div>
+
+<div id="ending-screen">
+  <div id="ending-title">· 第一章 完 ·</div>
+  <div id="ending-text">故事还在继续。</div>
+  <button id="restart-btn" onclick="restartGame()">重新开始</button>
+</div>
+
+<script>
+/* ============================================================
+   《开启》第一章 · 单文件 Demo
+   ============================================================ */
+
+const scenes = {
+
+  1: {
+    title: '第一章·迷路',
+    content: [
+      '▷ 场景01 · 夜晚入口',
+      '夜晚。',
+      '奕欢站在一条不太熟悉的街道上。她一时说不清这里是哪里。不是完全陌生，但也谈不上熟悉。像是来过，又像是只在梦里见过。',
+      '她站在路口，望向前面的街。灯光很远。',
+      '她心里忽然有一种奇怪的确定感。仿佛只要从这里转过去——就能到达某个地方。',
+      '她想了一下，低声对自己说：',
+      '「从这边转过去，就是我要去的那里了。」',
+      '她往前走。转过街角。然后停住了。',
+      '前面不是街。是一条笔直的路，很长，很黑，远处什么也看不见。',
+      '奕欢愣了一下。她拿出手机，屏幕亮起。',
+      '信号：无。',
+      '她皱了皱眉。',
+      '就在这时，一辆出租车慢慢停在她面前。红色的车身，车顶灯亮着，电子牌写着：空车。',
+      '司机探出头。',
+      '「要车吗？」',
+    ],
+    choices: [
+      { text: '上车', next: 'ch1_b' },
+      { text: '不上车，走进黑暗', next: 'ch1_b' },
+      { text: '站在原地等', next: 'ch1_c' },
+    ]
+  },
+
+  ch1_b: {
+    title: '第一章·迷路',
+    content: [
+      '奕欢看了一眼那辆车，没有走过去。她往前走，走进那条黑暗的路。',
+      '▷ 场景02 · 进入里城',
+      '灯光慢慢多起来。街道出现了，像是从黑暗里一点点浮出来。',
+      '店铺。路灯。招牌。',
+      '整条街安静得有点过分。',
+      '奕欢走了一会儿，脚步声在街上显得很清晰。她左右看了看——有人，但很少。那些人像在做自己的事情，又像只是站在那里。',
+      '她忍不住自言自语：',
+      '「这里是哪里？」',
+      '没有人回答。她继续往前走，走到一个路口，忽然停下。',
+      '因为她听见身后有人说话。',
+      '「迷路了？」',
+      '声音不大，但很清楚。',
+      '奕欢回头。一个男人站在路灯下，看起来很普通，像是刚好路过。他看着她，神情很平静。',
+      '奕欢迟疑了一下。',
+      '「……有点。」',
+      '男人看了看她来的方向，然后问了一句：',
+      '「你怎么从那边进来的？」',
+      '「那边？」',
+      '男人指了指她身后的街。',
+      '「那条路。」',
+      '奕欢回头看了一眼，摇了摇头。',
+      '「我也不太清楚。」',
+      '男人没有再问，只是点了点头。',
+      '「第一次来？」',
+      '「来哪？」',
+      '男人看了看四周，然后说：',
+      '「这里。」',
+      '他停了一下，像是在想用什么词，最后说：',
+      '「里城。」',
+      '「没听过。」',
+      '男人轻轻笑了一下。',
+      '「很多人都没听过。」',
+      '▷ 场景03 · 同行',
+      '两个人一起往前走。街灯一盏一盏亮着。气氛有点安静，但不尴尬。',
+      '奕欢走了一会儿，忍不住看了他一眼——眉眼很深邃，眸色好像有点特别，但又好像只是个普通的年轻人。不夸张地说，倒是挺好看的。',
+      '她忍不住问：',
+      '「你住这里？」',
+      '男人想了一下。',
+      '「算是吧。」',
+      '奕欢又看了他一眼。',
+      '「那你知道怎么出去吗？」',
+      '男人说：',
+      '「知道。」',
+      '他说得很自然，像是回答一件很简单的事。奕欢松了口气。',
+      '「那太好了。」',
+      '男人没有说什么，只是继续往前走。奕欢跟上去。',
+      '她以为他要带她出去。他只是在走。她跟上去了，也没有再问。',
+      '▷ 场景04 · 烧腊店',
+      '他们走过一排店铺。',
+      '其中一间店灯很亮，玻璃柜里挂着烧鸭和叉烧。香味飘出来。',
+      '奕欢忽然停住。她盯着那家店，眉头微微皱起来。',
+      '男人看了她一眼。',
+      '「怎么了？」',
+      '奕欢慢慢说：',
+      '「我好像见过这里。」',
+      '男人没有说话。她自己又摇了摇头。',
+      '「不对，应该没有。」',
+      '她继续往前走，但走了几步，又回头看了一眼那家店。心里有一种说不上来的感觉，像是——她每次都会经过这里。',
+      '▷ 场景05 · 新街',
+      '走到下一个路口，奕欢忽然停住。前面是一条她不记得的街。灯光很暗，两边是低楼，很安静。',
+      '她皱了皱眉。',
+      '「这里以前有吗？」',
+      '男人看了一眼。',
+      '「没有。」',
+      '他说得很平静。',
+      '「没有？」',
+      '男人点头。奕欢又看向那条街，有一种很奇怪的感觉，不是陌生，更像是——本来就该在这里。',
+      '「那为什么会有？」',
+      '男人没有马上回答，他看着街灯，停了一秒，然后说：',
+      '「可能是有人刚记起来。」',
+      '「记起来？」',
+      '男人已经往前走了。',
+      '「走吧。」',
+      '▷ 场景06·07 · 安全点·52段',
+      '他们来到一栋旧楼，里面灯光很稳定，看起来比街上更真实一点。',
+      '奕欢坐在地上，松了口气。',
+      '男人拿出一个设备。',
+      '「帮个忙？」',
+      '「什么？」',
+      '「传个数据。」',
+      '设备开始闪红灯。提示：过载风险。男人皱了一下眉。',
+      '「一次传不出去。」',
+      '奕欢想了想，说：',
+      '「那就分段。」',
+      '男人点头。',
+      '「可以。」',
+      '两个人坐在地上，设备放在中间。',
+      '他们开始：截取数据，传输，确认，再传。',
+      '一段。两段。三段。……',
+      '时间慢慢过去。奕欢越来越认真，男人也越来越认真。两个人低着头，偶尔说几句，声音都压得很低，像是怕打断什么。',
+      '终于，最后一段传完，设备响了一声。',
+      '奕欢长出一口气。',
+      '「终于好了。」',
+      '她把设备递还给男人。男人接过，他掌心亮起一圈微光——数据自动读取器。',
+      '设备再次响起。提示：完整读取成功。',
+      '奕欢愣住。空气安静两秒。她抬头看他。',
+      '「……啊？还可以这样？」',
+      '男人看起来有点懵懂。',
+      '「还可以这样。」',
+      '安静一秒。奕欢忽然笑了。不是礼貌的笑，是真的被这件事逗到了，她笑得停不下来。',
+      '男人看着她，也笑了。',
+      '但他的笑有一点不一样。',
+      '因为：她笑起来的样子，和上次一模一样。',
+      '但她不知道。',
+      '▷ 场景08 · 离开',
+      '他们离开据点。街道依然安静，气氛比刚见面时轻松很多。',
+      '奕欢忽然说：',
+      '「这地方太奇怪了。如果下次再来，我一定把路记住。」',
+      '男人沉默了一下，然后说：',
+      '「你每次都这么说。」',
+      '奕欢停住。',
+      '「什么？」',
+      '男人像是才意识到自己说了什么，停了一秒，然后很自然地改口：',
+      '「没什么。」',
+      '「这边。」',
+      '两个人继续往前走。奕欢皱了一下眉，但没有再问。',
+      '—',
+      '远处某个墙角。刻着一个词。',
+      'HOPE',
+      '没有灯光。也没有提示。像是一直在那里。',
+    ],
+    next: 'ch1_end'
+  },
+
+  ch1_c: {
+    title: '第一章·迷路',
+    content: [
+      '奕欢站在原地。手机亮了。一条短信。未知号码。',
+      '「别走。」',
+      '奕欢停顿了一下，回复：',
+      '「你怎么知道我要走？」',
+      '对方回：',
+      '「……」',
+      '「没什么，感觉。」',
+      '奕欢放下手机，快速扫了一眼四周。寂静，空旷，没有人。',
+      '她重新拿起手机，打开地图，试图搜索一个目的地。但输入法有问题——虽然可以正常输入拼写，但怎么也没办法转化为正常文字。',
+      '她试了几次，觉得有些奇怪，但说不出具体是什么。',
+      '这时候手机震动，第二条短信：',
+      '「你可以随意走走。」',
+      '奕欢看了一眼屏幕，没有急着回复。',
+      '她站在这里，感受空气的流动，湿度，温度。四周很安静，但不是死寂，仔细听似乎还有小虫窸窸窣窣的声音。',
+      '奕欢把手机放回衣兜里，选了一个视野开阔的地方走去。',
+      '灯光慢慢多起来。店铺，路灯，招牌。',
+      '她走着走着，开始慢慢有一种感觉——自己来这里，好像有事情要做。说不清是什么，但那种感觉越走越强。',
+      '然后她看见了那家店。玻璃柜里挂着烧鸭和叉烧，灯有点暖，香味飘出来。',
+      '奕欢停住了。她站在店门口，没有走进去，只是看着。心里有一种说不上来的感觉，像是——她每次都会经过这里。',
+      '她继续往前走。走到下一个路口，她看见了一个人。',
+      '男人站在路灯下，看起来很普通，像是刚好在那里。他看见她，说：',
+      '「你来了。」',
+      '奕欢心里闪过一个念头：他是不是发短信的人。她没有问出来，只是问：',
+      '「你认识我？」',
+      '男人说：',
+      '「认识，也不算真的认识。」',
+      '奕欢听罢，不自觉地又快速扫了一眼面前的人——眉眼很深邃，眸色好像有点特别，但又好像只是个普通的年轻人。不夸张地说，倒是挺好看的。',
+      '她没有再追问。两个人就这样开始同行。',
+    ],
+    next: 'ch1_end'
+  },
+
+  ch1_end: {
+    title: '',
+    content: [],
+    next: null
+  },
+
+};
+
+/* ── 引擎 ── */
+let currentSceneId = 1;
+
+const chapterTitle    = document.getElementById('chapter-title');
+const textArea        = document.getElementById('text-area');
+const choicesArea     = document.getElementById('choices-area');
+const continueBtnArea = document.getElementById('continue-btn-area');
+const endingScreen    = document.getElementById('ending-screen');
+
+function renderScene(sceneId) {
+  const scene = scenes[sceneId];
+
+  if (!scene || (scene.next === null && scene.content.length === 0)) {
+    showEnding();
+    return;
+  }
+
+  currentSceneId = sceneId;
+
+  const oldEnd = document.getElementById('chapter-end');
+  if (oldEnd) oldEnd.remove();
+
+  if (scene.title) chapterTitle.textContent = scene.title;
+
+  textArea.innerHTML    = '';
+  choicesArea.innerHTML = '';
+
+  scene.content.forEach((line, i) => {
+    const p = document.createElement('p');
+    if (line === '—') {
+      p.className   = 'separator';
+      p.textContent = '⸻';
+    } else if (line.startsWith('▷')) {
+      p.className   = 'scene-label';
+      p.textContent = line.slice(1).trim();
+    } else if (line.startsWith('「') || line.startsWith('"')) {
+      p.className   = 'dialogue';
+      p.textContent = line;
+    } else {
+      p.textContent = line;
+    }
+    p.style.animationDelay = `${i * 0.045}s`;
+    p.classList.add('fade-in');
+    textArea.appendChild(p);
+  });
+
+  if (scene.choices && scene.choices.length > 0) {
+    showChoices(scene.choices);
+  } else {
+    showContinue(scene.next);
+  }
+}
+
+function showChoices(choices) {
+  const oldBtn = document.getElementById('continue-btn');
+  if (oldBtn) oldBtn.classList.add('hidden');
+  choicesArea.innerHTML = '';
+
+  choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn fade-in';
+    btn.style.animationDelay = `${0.5 + i * 0.08}s`;
+    btn.textContent = choice.text;
+    btn.addEventListener('click', () => {
+      fadeTransition(() => renderScene(choice.next));
+    });
+    choicesArea.appendChild(btn);
+  });
+}
+
+function showContinue(nextId) {
+  choicesArea.innerHTML = '';
+
+  if (nextId === null || nextId === undefined) {
+    const oldBtn = document.getElementById('continue-btn');
+    if (oldBtn) oldBtn.classList.add('hidden');
+    const end = document.createElement('div');
+    end.id = 'chapter-end';
+    end.textContent = '── 第一章  完 ──';
+    end.classList.add('fade-in');
+    continueBtnArea.appendChild(end);
+
+    setTimeout(() => showEnding(), 2000);
+    return;
+  }
+
+  const oldBtn = document.getElementById('continue-btn');
+  const newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.classList.remove('hidden');
+  newBtn.addEventListener('click', () => {
+    fadeTransition(() => renderScene(nextId));
+  });
+}
+
+function fadeTransition(callback) {
+  textArea.style.transition     = 'opacity 0.35s ease';
+  chapterTitle.style.transition = 'opacity 0.35s ease';
+  textArea.style.opacity        = '0';
+  chapterTitle.style.opacity    = '0';
+  setTimeout(() => {
+    callback();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      textArea.style.opacity     = '1';
+      chapterTitle.style.opacity = '1';
+    });
+  }, 380);
+}
+
+function showEnding() {
+  document.getElementById('header').style.opacity = '0';
+  document.querySelector('.divider').style.opacity = '0';
+  textArea.style.opacity = '0';
+  choicesArea.innerHTML = '';
+  continueBtnArea.innerHTML = '';
+
+  setTimeout(() => {
+    textArea.style.display = 'none';
+    endingScreen.classList.add('visible');
+  }, 500);
+}
+
+function restartGame() {
+  endingScreen.classList.remove('visible');
+  endingScreen.style.display = 'none';
+  textArea.style.display = '';
+  textArea.style.opacity = '1';
+  document.getElementById('header').style.opacity = '1';
+  document.querySelector('.divider').style.opacity = '1';
+
+  const btn = document.createElement('button');
+  btn.id = 'continue-btn';
+  btn.className = 'hidden';
+  btn.textContent = '继　续';
+  continueBtnArea.innerHTML = '';
+  continueBtnArea.appendChild(btn);
+
+  renderScene(1);
+}
+
+/* ── 启动 ── */
+window.addEventListener('DOMContentLoaded', () => {
+  renderScene(1);
+});
+</script>
+</body>
+</html>
