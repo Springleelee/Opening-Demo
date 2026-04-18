@@ -52,6 +52,15 @@
     margin-bottom: 6px;
   }
 
+  
+  #entry-note {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--text-faint);
+    line-height: 2.2;
+    margin-top: 20px;
+  }
+
   #chapter-title {
     font-size: 15px;
     letter-spacing: 0.25em;
@@ -240,6 +249,7 @@
 <div id="header">
   <div id="game-title">开　启</div>
   <div id="chapter-title"></div>
+  <div id="entry-note">有些选择不改变去向<br>但会改变你如何抵达。</div>
 </div>
 <div class="divider"></div>
 <div id="text-area"></div>
@@ -281,16 +291,31 @@ const scenes = {
       '「要车吗？」',
     ],
     choices: [
-      { text: '上车', next: 'ch1_b' },
+      { text: '上车', next: 'ch1_a' },
       { text: '不上车，走进黑暗', next: 'ch1_b' },
       { text: '站在原地等', next: 'ch1_c' },
     ]
   },
 
+  ch1_a: {
+    title: '第一章·迷路',
+    content: [
+      '奕欢走近那辆红色的士，伸手准备拉开车门。',
+      '司机探出头，补了一句：',
+      '「哦对了，我这个车，cash only。」',
+      '奕欢微微一愣。现金？她在心里转了一下这个词。现在还有人出门带现金吗？可能妈妈那辈的人会带吧。',
+      '她摇了摇头。',
+      '「没事，我走着就好。」',
+      '她关上车门，走开了。的士停在原地，没有走。',
+      '那条黑暗的路，还在前面。',
+    ],
+    next: 'ch1_b'
+  },
+
   ch1_b: {
     title: '第一章·迷路',
     content: [
-      '奕欢看了一眼那辆车，没有走过去。她往前走，走进那条黑暗的路。',
+      '奕欢往前走，走进那条黑暗的路。',
       '▷ 场景02 · 进入里城',
       '灯光慢慢多起来。街道出现了，像是从黑暗里一点点浮出来。',
       '店铺。路灯。招牌。',
